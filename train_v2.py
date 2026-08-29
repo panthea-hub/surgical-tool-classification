@@ -1,3 +1,4 @@
+"""Test edit from Colab2"""
 """v2 of the main training script - same resnet18 setup as train.py, just
 with the hyperparameters we settled on after some manual tuning, and using
 our own computed dataset stats instead of generic ImageNet numbers since
