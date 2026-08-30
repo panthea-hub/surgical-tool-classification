@@ -9,4 +9,4 @@ NUM_EPOCHS = 15
 NUM_CLASSES = 4
 IMAGE_SIZE = 224
 WEIGHT_DECAY = 1e-5
-DATA_ROOT = "data/cholec-tinytools"
+DATA_ROOT = "/Users/panthea/Documents/Datasets/cholec-tinytools/data/cholec-tinytools"
