@@ -44,6 +44,24 @@ Each logical improvement should have its own entry and Git commit. Minor spellin
 
 ## Changes
 
+### 2026-08-30 — v0.2.0 — Automatic experiment logging
+
+- **Git commit:** `<pending>`
+- **Status:** Implemented; full training-run verification pending
+- **Files modified:**
+  - `train.py`
+  - `docs/change_log.md`
+- **Description:**
+  - Added automatic experiment logging to keep track of every training run. Each run is appended to `runs/training_history.csv` and records the training parameters from `config.py`, `train.py`, and `train_v2.py`, along with the final results, start and end time, run duration, and checkpoint location. This provides a single place to compare experiments and makes the training process reproducible.
+- **Reason for the change:** Provide one durable, append-only history for comparing completed training runs and tracing their effective inputs and results.
+- **Verification:**
+  - Verified that `train.py` passes Python syntax parsing.
+  - Verified that the change introduces no whitespace errors.
+  - Full CSV creation and row-content verification will be completed after the next training run.
+- **Expected impact:** Improves experiment traceability, comparison, and reproducibility without changing the existing training logic, hyperparameters, console output, or checkpoint behavior.
+- **AI assistance used:** Codex
+- **Next step:** Run `train.py` or `train_v2.py` and verify the generated `runs/training_history.csv` row.
+
 ### 2026-08-30 — v0.1.0 — Initial project setup
 
 - **Git commit:** `0631344`
