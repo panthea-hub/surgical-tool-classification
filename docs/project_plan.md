@@ -56,3 +56,23 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 8. ⚠️ [Priority: High] train.py / train_v2.py — best-model selection
 - Save or update the checkpoint whenever validation accuracy improves so its weights correspond to `best_val_accuracy` and `best_epoch`.
 - Reason: the current code records the best validation result only for reporting, while `resnet18_final.pt` contains the final epoch's weights and may represent a worse model.
+
+9. [Priority: Low] train_v2.py — hyperparameter configuration
+- Review the hard-coded `batch_size=8`, `lr=1e-3`, and `epochs=10`, which currently override values from `config.py`.
+- Decide whether these overrides are intentional or whether training hyperparameters should come from a single configuration source.
+- Reason: avoid conflicting configuration values and make training runs easier to understand and reproduce.
+
+10. [Priority: High] predict.py — align image preprocessing with training
+- Update inference preprocessing to match the current ResNet18 training pipeline: RGB input, `224 × 224` resizing, correct `0–1` scaling, and the same mean/std normalization used during training.
+- Do not copy training-only augmentation such as random flip or color jitter into prediction.
+- Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
+
+11. [Priority: High] predict.py — create current ResNet18 inference pipeline
+- Replace the legacy `SmallCNN` model and `model_best.pt` checkpoint with the ResNet18 architecture and checkpoint produced by the current training pipeline.
+- Reuse the same RGB resizing, scaling, normalization, and class ordering used during training while preserving the required CLI and prediction CSV interface.
+- Reason: no ResNet18 prediction pipeline currently exists; `predict.py` and `evaluate_model.py` still use the legacy `SmallCNN`, so the current trained ResNet18 model cannot be used for inference.
+
+12. [Priority: High] predict.py — image-loading error handling
+- Remove the silent fallback that replaces failed images with `torch.zeros(3, 128, 128)` and report the failed filename and error.
+- Decide whether failed images should be skipped or explicitly marked as failed in the output instead of generating a normal prediction from an artificial black image.
+- Reason: hidden image-processing failures create normal-looking but unreliable predictions and mask data-quality problems.
