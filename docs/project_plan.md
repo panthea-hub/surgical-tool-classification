@@ -88,12 +88,10 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Document that the original `validation/` folder serves as the held-out evaluation set because the project has no separate test set.
 - Reason: predefined validation images can currently be used during training and evaluated again, making the reported evaluation accuracy non-independent.
 
-14. [Priority: Medium] evaluate_model.py — use shared dataset configuration
-- Replace the hardcoded repository-local validation path with a path built from `config.DATA_ROOT` so local and Colab workflows use the same dataset source.
-- Avoid maintaining separate dataset paths in the training and evaluation scripts.
-- Reason: `evaluate_model.py` currently resolves to a nonexistent repository-local dataset directory while training uses `config.DATA_ROOT`, causing local failure and the same portability issue in Colab.
+14. [Priority: Medium] evaluate_model.py — use shared dataset configuration- Replace the hardcoded repository-local validation path with a path built from config.DATA_ROOT.
+- Avoid maintaining separate dataset paths in training and evaluation.
+- Reason: the current path does not exist locally and is not portable to Colab.
 
-15. [Priority: Medium] run_all.sh — align end-to-end pipeline
-- Update `run_all.sh` to run one connected ResNet18 workflow: training → evaluation → submission/preflight check.
+15. [Priority: Medium] run_all.sh — align end-to-end pipeline- Run one connected ResNet18 workflow: training → evaluation → submission/preflight check.
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
-- Reason: the current script trains EfficientNet, evaluates the legacy SmallCNN, and never runs the submission check, so it does not represent a connected end-to-end pipeline.
+- Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.

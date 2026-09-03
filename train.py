@@ -95,7 +95,12 @@ def load_all_paths_and_labels():
     """Pull together every image we have - train and validation folders both
     get pooled here and we carve out our own split below, since the
     validation folder alone is too small to get a stable estimate from."""
-    classes = sorted(os.listdir(config.DATA_ROOT + "/train"))
+    train_root = os.path.join(config.DATA_ROOT, "train")
+    classes = sorted(
+        entry.name
+        for entry in os.scandir(train_root)
+        if entry.is_dir() and not entry.name.startswith(".")
+    )
     class_to_idx = {c: i for i, c in enumerate(classes)}
     paths, labels = [], []
     for split in ("train", "validation"):
