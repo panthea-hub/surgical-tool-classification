@@ -94,7 +94,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Decide whether these overrides are intentional or whether training hyperparameters should come from a single configuration source.
 - Reason: avoid conflicting configuration values and make training runs easier to understand and reproduce.
 
-10. [Status: PLANNED] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py — align image preprocessing with training
+10. [Status: DONE] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py — align image preprocessing with training
 - Update inference preprocessing to match the current ResNet18 training pipeline: RGB input, `224 × 224` resizing, correct `0–1` scaling, and the same mean/std normalization used during training.
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
@@ -107,7 +107,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 
 - Reason: predict.py and evaluate_model.py still use legacy model/preprocessing paths that do not match the current ResNet18 training pipeline.
 
-12. [Status: PLANNED] [Priority: High] [Category: BUG FIX] predict.py — image-loading error handling
+12. [Status: DONE] [Priority: High] [Category: BUG FIX] predict.py — image-loading error handling
 - Remove the silent fallback that replaces failed images with `torch.zeros(3, 128, 128)` and report the failed filename and error.
 - Decide whether failed images should be skipped or explicitly marked as failed in the output instead of generating a normal prediction from an artificial black image.
 - Reason: hidden image-processing failures create normal-looking but unreliable predictions and mask data-quality problems.
@@ -124,9 +124,11 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Avoid maintaining separate dataset paths in training and evaluation.
 - Reason: the current path does not exist locally and is not portable to Colab.
 
-15. [Status: DONE] [Priority: Medium] [Category: PIPELINE ALIGNMENT] run_all.sh — align end-to-end pipeline
+15. [Status: DONE — end-to-end pipeline verified] [Priority: Medium] [Category: PIPELINE ALIGNMENT] run_all.sh — align end-to-end pipeline
 - Run one connected ResNet18 workflow: training → evaluation → prediction → submission/preflight check.
 - Implementation note: prediction and submission validation use paths built from `config.DATA_ROOT`.
+- Verification: `train_v2.py → evaluate_model.py → predict.py → check_submission.py` completed successfully.
+- Verification result: prediction generated 277 rows and submission validation returned `PREFLIGHT PASSED`.
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
 - Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.
 

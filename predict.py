@@ -45,10 +45,8 @@ class InferenceDataset(Dataset):
             img = Image.open(path).convert("RGB").resize((self.image_size, self.image_size))
             tensor = torch.from_numpy(np.array(img, dtype=np.float32)).permute(2, 0, 1) / 255.0
             tensor = (tensor - self.normalization_mean) / self.normalization_std
-        except Exception:
-            # corrupt or unreadable frame - fall back to a blank image so
-            # the batch shapes stay consistent and inference doesn't stop
-            tensor = torch.zeros(3, self.image_size, self.image_size)
+        except Exception as error:
+            raise RuntimeError(f"Failed to load or process image: {path}: {error}") from error
         return tensor, os.path.basename(path)
 
 
