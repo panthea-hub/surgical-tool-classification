@@ -4,21 +4,6 @@
 
 Improve the performance, robustness, and maintainability of a surgical tool image classification pipeline while preserving the required inference interface.
 
-## Success Criteria
-
-- Improve macro-F1 score on the validation set.
-- Preserve compatibility with the required prediction contract.
-- Improve code quality and reproducibility.
-- Document all experiments and engineering decisions.
-
-## Development Strategy
-
-1. Review the existing implementation.
-2. Identify technical issues.
-3. Implement one improvement at a time.
-4. Validate each change.
-5. Commit each logical change separately.
-6. Merge stable improvements into the main branch.
 
 ## test from codex
 ## Workflow test completed from VS Code to GitHub to Colab.
@@ -109,13 +94,12 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Decide whether these overrides are intentional or whether training hyperparameters should come from a single configuration source.
 - Reason: avoid conflicting configuration values and make training runs easier to understand and reproduce.
 
-10. [Status: DONE] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py — align image preprocessing with training
+10. [Status: PLANNED] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py — align image preprocessing with training
 - Update inference preprocessing to match the current ResNet18 training pipeline: RGB input, `224 × 224` resizing, correct `0–1` scaling, and the same mean/std normalization used during training.
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
-- Implementation note: RGB PIL images are converted through NumPy without deprecated `img.getdata()` usage.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
 
-11. [Status: DONE] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
+11. [Status: IN PROGRESS — evaluation complete; prediction model updated; checkpoint and preprocessing pending] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
 
 - Replace the legacy SmallCNN/model_best.pt path with the current ResNet18 architecture and checkpoint.
 - Align evaluation preprocessing with training: RGB input, 224 × 224 resizing, correct 0–1 scaling, and the same normalization.
@@ -140,7 +124,9 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Avoid maintaining separate dataset paths in training and evaluation.
 - Reason: the current path does not exist locally and is not portable to Colab.
 
-15. [Status: PLANNED] [Priority: Medium] [Category: PIPELINE ALIGNMENT] run_all.sh — align end-to-end pipeline- Run one connected ResNet18 workflow: training → evaluation → submission/preflight check.
+15. [Status: DONE] [Priority: Medium] [Category: PIPELINE ALIGNMENT] run_all.sh — align end-to-end pipeline
+- Run one connected ResNet18 workflow: training → evaluation → prediction → submission/preflight check.
+- Implementation note: the prediction data path is built from `config.DATA_ROOT`.
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
 - Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.
 
