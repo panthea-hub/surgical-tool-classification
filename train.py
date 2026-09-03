@@ -204,7 +204,16 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
 
     os.makedirs("checkpoints", exist_ok=True)
     checkpoint_path = "checkpoints/resnet18_final.pt"
-    torch.save(best_model_state, checkpoint_path)
+    torch.save(
+        {
+            "model_state_dict": best_model_state,
+            "class_names": classes,
+            "image_size": config.IMAGE_SIZE,
+            "normalization_mean": IMAGENET_MEAN,
+            "normalization_std": IMAGENET_STD,
+        },
+        checkpoint_path,
+    )
     print("saved checkpoints/resnet18_final.pt")
 
     end_time = datetime.now().astimezone()
