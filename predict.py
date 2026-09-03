@@ -12,19 +12,21 @@ import argparse
 import csv
 import os
 
+import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 
-from data_utils import get_class_names
-from legacy.cnn_baseline_v2 import SmallCNN
+from train import build_model
 
-CLASS_NAMES = get_class_names()
-CHECKPOINT_PATH = os.path.join(os.path.dirname(__file__), "checkpoints", "model_best.pt")
+CHECKPOINT_PATH = os.path.join(os.path.dirname(__file__), "checkpoints", "resnet18_final.pt")
 
 
 class InferenceDataset(Dataset):
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, image_size, normalization_mean, normalization_std):
+        self.image_size = image_size
+        self.normalization_mean = torch.tensor(normalization_mean).view(3, 1, 1)
+        self.normalization_std = torch.tensor(normalization_std).view(3, 1, 1)
         subdirs = [os.path.join(data_dir, d) for d in os.listdir(data_dir)
                    if os.path.isdir(os.path.join(data_dir, d))]
         self.paths = []
@@ -40,13 +42,13 @@ class InferenceDataset(Dataset):
     def __getitem__(self, idx):
         path = self.paths[idx]
         try:
-            img = Image.open(path).convert("L").resize((128, 128))
-            tensor = torch.tensor(list(img.getdata()), dtype=torch.float32).view(1, 128, 128) / 255.0
-            tensor = tensor.repeat(3, 1, 1)
+            img = Image.open(path).convert("RGB").resize((self.image_size, self.image_size))
+            tensor = torch.from_numpy(np.array(img, dtype=np.float32)).permute(2, 0, 1) / 255.0
+            tensor = (tensor - self.normalization_mean) / self.normalization_std
         except Exception:
             # corrupt or unreadable frame - fall back to a blank image so
             # the batch shapes stay consistent and inference doesn't stop
-            tensor = torch.zeros(3, 128, 128)
+            tensor = torch.zeros(3, self.image_size, self.image_size)
         return tensor, os.path.basename(path)
 
 
@@ -57,12 +59,18 @@ def main():
     args = ap.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = SmallCNN(num_classes=len(CLASS_NAMES)).to(device)
-    state = torch.load(CHECKPOINT_PATH, map_location=device)
-    model.load_state_dict(state)
+    checkpoint = torch.load(CHECKPOINT_PATH, map_location=device)
+    class_names = checkpoint["class_names"]
+    image_size = checkpoint["image_size"]
+    normalization_mean = checkpoint["normalization_mean"]
+    normalization_std = checkpoint["normalization_std"]
+    model = build_model(num_classes=len(class_names)).to(device)
+    model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 
-    ds = InferenceDataset(args.data_dir)
+    ds = InferenceDataset(
+        args.data_dir, image_size, normalization_mean, normalization_std
+    )
     loader = DataLoader(ds, batch_size=64, shuffle=False)
 
     rows = []
@@ -71,7 +79,7 @@ def main():
             imgs = imgs.to(device)
             preds = model(imgs).argmax(dim=1).cpu().tolist()
             for name, p in zip(names, preds):
-                rows.append((name, CLASS_NAMES[p]))
+                rows.append((name, class_names[p]))
 
     with open(args.out, "w", newline="") as f:
         w = csv.writer(f)

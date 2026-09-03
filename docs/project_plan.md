@@ -109,12 +109,13 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Decide whether these overrides are intentional or whether training hyperparameters should come from a single configuration source.
 - Reason: avoid conflicting configuration values and make training runs easier to understand and reproduce.
 
-10. [Status: PLANNED] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py — align image preprocessing with training
+10. [Status: DONE] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py — align image preprocessing with training
 - Update inference preprocessing to match the current ResNet18 training pipeline: RGB input, `224 × 224` resizing, correct `0–1` scaling, and the same mean/std normalization used during training.
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
+- Implementation note: RGB PIL images are converted through NumPy without deprecated `img.getdata()` usage.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
 
-11. [Status: IN PROGRESS — evaluation complete; prediction pending] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
+11. [Status: DONE] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
 
 - Replace the legacy SmallCNN/model_best.pt path with the current ResNet18 architecture and checkpoint.
 - Align evaluation preprocessing with training: RGB input, 224 × 224 resizing, correct 0–1 scaling, and the same normalization.
