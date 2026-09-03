@@ -80,7 +80,7 @@ class ToolDataset(Dataset):
     def __getitem__(self, idx):
         img = Image.open(self.paths[idx]).convert("RGB").resize((config.IMAGE_SIZE, config.IMAGE_SIZE))
         arr = np.array(img)  # HWC, uint8, 0-255
-        tensor = torch.from_numpy(arr).permute(2, 0, 1).float()
+        tensor = torch.from_numpy(arr).permute(2, 0, 1).float() / 255.0
         if self.augment:
             tensor = AUGMENT(tensor)
         # Normalize with standard ImageNet stats so the pretrained backbone
