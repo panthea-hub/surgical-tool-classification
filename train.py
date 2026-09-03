@@ -158,6 +158,7 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
 
     best_val_accuracy = float("-inf")
     best_epoch = None
+    best_model_state = None
     final_train_loss = None
     final_val_loss = None
     final_val_accuracy = None
@@ -191,6 +192,10 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
         if final_val_accuracy > best_val_accuracy:
             best_val_accuracy = final_val_accuracy
             best_epoch = epoch
+            best_model_state = {
+                name: tensor.detach().cpu().clone()
+                for name, tensor in model.state_dict().items()
+            }
 
         print(
             f"epoch {epoch:02d}  train_loss={final_train_loss:.4f}  "
@@ -199,7 +204,7 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
 
     os.makedirs("checkpoints", exist_ok=True)
     checkpoint_path = "checkpoints/resnet18_final.pt"
-    torch.save(model.state_dict(), checkpoint_path)
+    torch.save(best_model_state, checkpoint_path)
     print("saved checkpoints/resnet18_final.pt")
 
     end_time = datetime.now().astimezone()
