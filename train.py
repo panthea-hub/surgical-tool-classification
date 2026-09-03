@@ -172,14 +172,16 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
             optimizer.step()
             total_loss += loss.item() * imgs.size(0)
 
+        model.eval()
         val_loss = 0.0
         val_correct = 0
-        for imgs, lbls in val_loader:
-            imgs, lbls = imgs.to(device), lbls.to(device)
-            logits = model(imgs)
-            loss = criterion(logits, lbls)
-            val_loss += loss.item() * imgs.size(0)
-            val_correct += (logits.argmax(dim=1) == lbls).sum().item()
+        with torch.no_grad():
+            for imgs, lbls in val_loader:
+                imgs, lbls = imgs.to(device), lbls.to(device)
+                logits = model(imgs)
+                loss = criterion(logits, lbls)
+                val_loss += loss.item() * imgs.size(0)
+                val_correct += (logits.argmax(dim=1) == lbls).sum().item()
 
         final_train_loss = total_loss / len(train_ds)
         final_val_loss = val_loss / len(val_ds)
