@@ -92,3 +92,8 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Replace the hardcoded repository-local validation path with a path built from `config.DATA_ROOT` so local and Colab workflows use the same dataset source.
 - Avoid maintaining separate dataset paths in the training and evaluation scripts.
 - Reason: `evaluate_model.py` currently resolves to a nonexistent repository-local dataset directory while training uses `config.DATA_ROOT`, causing local failure and the same portability issue in Colab.
+
+15. [Priority: Medium] run_all.sh — align end-to-end pipeline
+- Update `run_all.sh` to run one connected ResNet18 workflow: training → evaluation → submission/preflight check.
+- Remove the disconnected EfficientNet experiment and unrelated config-printing step.
+- Reason: the current script trains EfficientNet, evaluates the legacy SmallCNN, and never runs the submission check, so it does not represent a connected end-to-end pipeline.
