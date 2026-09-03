@@ -15,7 +15,6 @@ from datetime import datetime
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Dataset
@@ -167,8 +166,7 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
             imgs, lbls = imgs.to(device), lbls.to(device)
             optimizer.zero_grad()
             logits = model(imgs)
-            probs = F.softmax(logits, dim=1)
-            loss = criterion(probs, lbls)
+            loss = criterion(logits, lbls)
             loss.backward()
             optimizer.step()
             total_loss += loss.item() * imgs.size(0)
@@ -178,10 +176,9 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
         for imgs, lbls in val_loader:
             imgs, lbls = imgs.to(device), lbls.to(device)
             logits = model(imgs)
-            probs = F.softmax(logits, dim=1)
-            loss = criterion(probs, lbls)
+            loss = criterion(logits, lbls)
             val_loss += loss.item() * imgs.size(0)
-            val_correct += (probs.argmax(dim=1) == lbls).sum().item()
+            val_correct += (logits.argmax(dim=1) == lbls).sum().item()
 
         final_train_loss = total_loss / len(train_ds)
         final_val_loss = val_loss / len(val_ds)
