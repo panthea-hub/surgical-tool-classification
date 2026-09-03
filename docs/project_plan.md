@@ -40,7 +40,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Save the best validation model and record its `run_id`, best epoch, best validation accuracy, and checkpoint path in `training_history.csv`.
 - Reason: preserve lightweight experiment tracking while preventing checkpoint overwrites and retaining epoch-level results.
 
-5. [Priority: High] train.py — dataset/class loading logic
+5. [Priority: High] train.py / evaluate_model.py — dataset/class loading logic
 - Discover only valid class directories and ignore hidden or system files such as `.DS_Store`.
 - Reason: ensure the dataset consistently contains only the expected surgical-tool classes and prevent non-class files from entering the class mapping.
 
@@ -67,12 +67,33 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
 
-11. [Priority: High] predict.py — create current ResNet18 inference pipeline
-- Replace the legacy `SmallCNN` model and `model_best.pt` checkpoint with the ResNet18 architecture and checkpoint produced by the current training pipeline.
-- Reuse the same RGB resizing, scaling, normalization, and class ordering used during training while preserving the required CLI and prediction CSV interface.
-- Reason: no ResNet18 prediction pipeline currently exists; `predict.py` and `evaluate_model.py` still use the legacy `SmallCNN`, so the current trained ResNet18 model cannot be used for inference.
+11. [Priority: High] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
+
+- Replace the legacy SmallCNN/model_best.pt path with the current ResNet18 architecture and checkpoint.
+- Align evaluation preprocessing with training: RGB input, 224 × 224 resizing, correct 0–1 scaling, and the same normalization.
+- Preserve the required prediction CLI and CSV interface.
+
+- Reason: predict.py and evaluate_model.py still use legacy model/preprocessing paths that do not match the current ResNet18 training pipeline.
 
 12. [Priority: High] predict.py — image-loading error handling
 - Remove the silent fallback that replaces failed images with `torch.zeros(3, 128, 128)` and report the failed filename and error.
 - Decide whether failed images should be skipped or explicitly marked as failed in the output instead of generating a normal prediction from an artificial black image.
 - Reason: hidden image-processing failures create normal-looking but unreliable predictions and mask data-quality problems.
+
+13. [Priority: High] train.py / train_v2.py / evaluate_model.py — prevent train/evaluation data leakage
+- Stop pooling the predefined `train/` and `validation/` folders before creating a new random split, and preserve a clean separation between training and validation data.
+- Use only the original `train/` folder for model development and hold out a small stratified portion for training-time validation and model selection.
+- Initially consider a 5% holdout; increase it to 10–20% if 5% produces too few validation examples per class.
+- Keep the original `validation/` folder completely untouched during training and use it only for final evaluation.
+- Document that the original `validation/` folder serves as the held-out evaluation set because the project has no separate test set.
+- Reason: predefined validation images can currently be used during training and evaluated again, making the reported evaluation accuracy non-independent.
+
+14. [Priority: Medium] evaluate_model.py — use shared dataset configuration
+- Replace the hardcoded repository-local validation path with a path built from `config.DATA_ROOT` so local and Colab workflows use the same dataset source.
+- Avoid maintaining separate dataset paths in the training and evaluation scripts.
+- Reason: `evaluate_model.py` currently resolves to a nonexistent repository-local dataset directory while training uses `config.DATA_ROOT`, causing local failure and the same portability issue in Colab.
+
+15. [Priority: Medium] run_all.sh — align end-to-end pipeline
+- Update `run_all.sh` to run one connected ResNet18 workflow: training → evaluation → submission/preflight check.
+- Remove the disconnected EfficientNet experiment and unrelated config-printing step.
+- Reason: the current script trains EfficientNet, evaluates the legacy SmallCNN, and never runs the submission check, so it does not represent a connected end-to-end pipeline.
