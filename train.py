@@ -130,6 +130,8 @@ def append_training_history(row):
 
 
 def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
+    np.random.seed(42)
+    torch.manual_seed(42)
     start_time = datetime.now().astimezone()
     start_counter = time.perf_counter()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
