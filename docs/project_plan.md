@@ -58,6 +58,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 ### EXPERIMENT TRACKING
 
 - `train.py` — appended completed-run configuration and results to `runs/training_history.csv`.
+- `evaluate_model.py` — appended evaluation summaries to `runs/evaluation_history.csv`.
 
 ### FEATURE ADDITION
 
@@ -81,7 +82,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - After fixing the normalization scale bug, compare ImageNet mean/std with the dataset-specific values from `stats.json` as a controlled experiment.
 - Reason: determine whether ImageNet normalization better matches the pretrained ResNet18 backbone or dataset-specific normalization provides a measurable benefit for the surgical-tool dataset.
 
-4. [Status: IN PROGRESS] [Priority: Medium] [Category: EXPERIMENT TRACKING] train.py / train_v2.py / runs/ — experiment tracking
+4. [Status: IN PROGRESS — training and evaluation histories implemented; run-linked artifacts pending] [Priority: Medium] [Category: EXPERIMENT TRACKING] train.py / train_v2.py / runs/ — experiment tracking
 - Keep `runs/training_history.csv` as the run summary; add a unique `run_id`, per-run epoch-metrics CSV, and uniquely named checkpoint linked to that run.
 - Save the best validation model and record its `run_id`, best epoch, best validation accuracy, and checkpoint path in `training_history.csv`.
 - Reason: preserve lightweight experiment tracking while preventing checkpoint overwrites and retaining epoch-level results.
@@ -113,7 +114,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
 
-11. [Status: IN PROGRESS] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
+11. [Status: IN PROGRESS — evaluation complete; prediction pending] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
 
 - Replace the legacy SmallCNN/model_best.pt path with the current ResNet18 architecture and checkpoint.
 - Align evaluation preprocessing with training: RGB input, 224 × 224 resizing, correct 0–1 scaling, and the same normalization.

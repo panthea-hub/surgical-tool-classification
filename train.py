@@ -107,8 +107,9 @@ def load_all_paths_and_labels():
     return paths, labels, classes
 
 
-def build_model(num_classes):
-    model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
+def build_model(num_classes, pretrained=True):
+    weights = models.ResNet18_Weights.IMAGENET1K_V1 if pretrained else None
+    model = models.resnet18(weights=weights)
     # Keep the pretrained backbone frozen and train a new classification head.
     for param in model.parameters():
         param.requires_grad = False

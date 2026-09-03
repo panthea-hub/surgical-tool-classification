@@ -4,7 +4,10 @@ have, so that's what this reports against).
 
 Usage: python evaluate_model.py
 """
+import csv
+import json
 import os
+from datetime import datetime
 
 import numpy as np
 import torch
@@ -16,6 +19,7 @@ from train import build_model
 
 DATA_ROOT = os.path.join(config.DATA_ROOT, "validation")
 CHECKPOINT_PATH = os.path.join(os.path.dirname(__file__), "checkpoints", "resnet18_final.pt")
+EVALUATION_HISTORY_PATH = "runs/evaluation_history.csv"
 
 
 class EvalDataset(Dataset):
@@ -67,7 +71,7 @@ def main():
     )
     loader = DataLoader(dataset, batch_size=16, shuffle=False)
 
-    model = build_model(num_classes=len(class_names)).to(device)
+    model = build_model(num_classes=len(class_names), pretrained=False).to(device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 
@@ -93,11 +97,14 @@ def main():
                 if p == t:
                     per_class_correct[cls_name] += 1
 
-    print(f"overall accuracy: {total_correct / total_samples:.4f}")
+    overall_accuracy = total_correct / total_samples
+    print(f"overall accuracy: {overall_accuracy:.4f}")
     print("per-class breakdown:")
+    per_class_accuracy = {}
     for cls in class_names:
         total = per_class_total[cls]
         acc = per_class_correct[cls] / total if total else float("nan")
+        per_class_accuracy[cls] = acc
         print(f"  {cls:10s}  n={total:4d}  acc={acc:.4f}")
 
     confusion_matrix = np.zeros((len(class_names), len(class_names)), dtype=int)
@@ -105,6 +112,27 @@ def main():
         confusion_matrix[true_label, predicted_label] += 1
     print("confusion matrix:")
     print(confusion_matrix)
+
+    os.makedirs(os.path.dirname(EVALUATION_HISTORY_PATH), exist_ok=True)
+    write_header = not os.path.exists(EVALUATION_HISTORY_PATH)
+    with open(EVALUATION_HISTORY_PATH, "a", newline="") as history_file:
+        fieldnames = [
+            "timestamp",
+            "checkpoint_path",
+            "overall_accuracy",
+            "per_class_accuracy",
+            "samples_per_class",
+        ]
+        writer = csv.DictWriter(history_file, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
+        writer.writerow({
+            "timestamp": datetime.now().astimezone().isoformat(),
+            "checkpoint_path": CHECKPOINT_PATH,
+            "overall_accuracy": overall_accuracy,
+            "per_class_accuracy": json.dumps(per_class_accuracy),
+            "samples_per_class": json.dumps(per_class_total),
+        })
 
 
 if __name__ == "__main__":
