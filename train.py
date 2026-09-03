@@ -1,7 +1,7 @@
-"""Main training entry point - ResNet-18 finetune on the tool classifier.
+"""Main training entry point - ResNet-18 tool classifier.
 
-This is the current best model. We do a full finetune of the backbone with
-a fresh classification head on top; see the model setup below.
+The model uses a pretrained frozen backbone and trains a new classification
+head; see the model setup below.
 
 Usage: python train.py
 """
@@ -112,8 +112,7 @@ def load_all_paths_and_labels():
 
 def build_model(num_classes):
     model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
-    # Full finetune: unfreeze everything and let the whole network adapt to
-    # the surgical domain, then swap in our classification head.
+    # Keep the pretrained backbone frozen and train a new classification head.
     for param in model.parameters():
         param.requires_grad = False
     model.fc = nn.Linear(model.fc.in_features, num_classes)
