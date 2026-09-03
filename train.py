@@ -142,7 +142,7 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
     )
 
     train_ds = ToolDataset(train_paths, train_labels, augment=True)
-    val_ds = ToolDataset(val_paths, val_labels, augment=True)
+    val_ds = ToolDataset(val_paths, val_labels, augment=False)
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
