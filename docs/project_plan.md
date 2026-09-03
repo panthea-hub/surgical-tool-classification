@@ -126,7 +126,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 
 15. [Status: DONE] [Priority: Medium] [Category: PIPELINE ALIGNMENT] run_all.sh — align end-to-end pipeline
 - Run one connected ResNet18 workflow: training → evaluation → prediction → submission/preflight check.
-- Implementation note: the prediction data path is built from `config.DATA_ROOT`.
+- Implementation note: prediction and submission validation use paths built from `config.DATA_ROOT`.
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
 - Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.
 
