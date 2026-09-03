@@ -91,9 +91,7 @@ class ToolDataset(Dataset):
 
 
 def load_all_paths_and_labels():
-    """Pull together every image we have - train and validation folders both
-    get pooled here and we carve out our own split below, since the
-    validation folder alone is too small to get a stable estimate from."""
+    """Load images from the training folder for the internal split below."""
     train_root = os.path.join(config.DATA_ROOT, "train")
     classes = sorted(
         entry.name
@@ -102,11 +100,10 @@ def load_all_paths_and_labels():
     )
     class_to_idx = {c: i for i, c in enumerate(classes)}
     paths, labels = [], []
-    for split in ("train", "validation"):
-        for cls in classes:
-            for p in glob.glob(f"{config.DATA_ROOT}/{split}/{cls}/*.png"):
-                paths.append(p)
-                labels.append(class_to_idx[cls])
+    for cls in classes:
+        for p in glob.glob(f"{train_root}/{cls}/*.png"):
+            paths.append(p)
+            labels.append(class_to_idx[cls])
     return paths, labels, classes
 
 
