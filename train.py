@@ -150,7 +150,7 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
     # Only the head has requires_grad=True at this point, so this optimizes
     # the classifier on top of frozen pretrained features - much faster to
     # converge than updating the whole backbone.
-    optimizer = torch.optim.SGD(model.fc.parameters(), lr=lr * 100, momentum=0.9)
+    optimizer = torch.optim.SGD(model.fc.parameters(), lr=lr, momentum=0.9)
     criterion = nn.CrossEntropyLoss()
 
     best_val_accuracy = float("-inf")
