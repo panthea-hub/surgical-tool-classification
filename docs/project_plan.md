@@ -67,9 +67,10 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - After fixing the normalization scale bug, compare ImageNet mean/std with the dataset-specific values from `stats.json` as a controlled experiment.
 - Reason: determine whether ImageNet normalization better matches the pretrained ResNet18 backbone or dataset-specific normalization provides a measurable benefit for the surgical-tool dataset.
 
-4. [Status: IN PROGRESS — training and evaluation histories implemented; run-linked artifacts pending] [Priority: Medium] [Category: EXPERIMENT TRACKING] train.py / train_v2.py / runs/ — experiment tracking
+4. [Status: DONE] [Priority: Medium] [Category: EXPERIMENT TRACKING] train.py / train_v2.py / runs/ — experiment tracking
 - Keep `runs/training_history.csv` as the run summary; add a unique `run_id`, per-run epoch-metrics CSV, and uniquely named checkpoint linked to that run.
 - Save the best validation model and record its `run_id`, best epoch, best validation accuracy, and checkpoint path in `training_history.csv`.
+- Verification: runtime testing confirmed the unique run ID, per-epoch metrics CSV, unique checkpoint, and matching training-history record.
 - Reason: preserve lightweight experiment tracking while preventing checkpoint overwrites and retaining epoch-level results.
 
 5. [Status: DONE] [Priority: High] [Category: BUG FIX] train.py / evaluate_model.py — dataset/class loading logic

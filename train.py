@@ -32,6 +32,7 @@ AUGMENT = transforms.Compose([
 
 TRAINING_HISTORY_PATH = "runs/training_history.csv"
 TRAINING_HISTORY_FIELDS = [
+    "run_id",
     "run_timestamp",
     "script_name",
     "dataset_path",
@@ -120,6 +121,16 @@ def build_model(num_classes, pretrained=True):
 def append_training_history(row):
     os.makedirs(os.path.dirname(TRAINING_HISTORY_PATH), exist_ok=True)
     write_header = not os.path.exists(TRAINING_HISTORY_PATH)
+    if not write_header:
+        with open(TRAINING_HISTORY_PATH, newline="") as history_file:
+            reader = csv.DictReader(history_file)
+            existing_rows = list(reader)
+            existing_fields = reader.fieldnames
+        if existing_fields != TRAINING_HISTORY_FIELDS:
+            with open(TRAINING_HISTORY_PATH, "w", newline="") as history_file:
+                writer = csv.DictWriter(history_file, fieldnames=TRAINING_HISTORY_FIELDS)
+                writer.writeheader()
+                writer.writerows(existing_rows)
     with open(TRAINING_HISTORY_PATH, "a", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=TRAINING_HISTORY_FIELDS)
         if write_header:
@@ -131,6 +142,15 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
     np.random.seed(42)
     torch.manual_seed(42)
     start_time = datetime.now().astimezone()
+    run_id = start_time.strftime("%Y%m%dT%H%M%S%f%z")
+    run_dir = os.path.join("runs", run_id)
+    os.makedirs(run_dir, exist_ok=True)
+    metrics_path = os.path.join(run_dir, "metrics.csv")
+    with open(metrics_path, "w", newline="") as metrics_file:
+        csv.DictWriter(
+            metrics_file,
+            fieldnames=["epoch", "train_loss", "val_loss", "val_accuracy"],
+        ).writeheader()
     start_counter = time.perf_counter()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -199,9 +219,20 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
             f"epoch {epoch:02d}  train_loss={final_train_loss:.4f}  "
             f"val_loss={final_val_loss:.4f}  val_acc={final_val_accuracy:.4f}"
         )
+        with open(metrics_path, "a", newline="") as metrics_file:
+            writer = csv.DictWriter(
+                metrics_file,
+                fieldnames=["epoch", "train_loss", "val_loss", "val_accuracy"],
+            )
+            writer.writerow({
+                "epoch": epoch,
+                "train_loss": final_train_loss,
+                "val_loss": final_val_loss,
+                "val_accuracy": final_val_accuracy,
+            })
 
     os.makedirs("checkpoints", exist_ok=True)
-    checkpoint_path = "checkpoints/resnet18_final.pt"
+    checkpoint_path = f"checkpoints/resnet18_{run_id}.pt"
     torch.save(
         {
             "model_state_dict": best_model_state,
@@ -212,12 +243,13 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
         },
         checkpoint_path,
     )
-    print("saved checkpoints/resnet18_final.pt")
+    print(f"saved {checkpoint_path}")
 
     end_time = datetime.now().astimezone()
     duration_seconds = time.perf_counter() - start_counter
     optimizer_group = optimizer.param_groups[0]
     append_training_history({
+        "run_id": run_id,
         "run_timestamp": start_time.isoformat(),
         "script_name": os.path.basename(sys.argv[0]),
         "dataset_path": config.DATA_ROOT,
