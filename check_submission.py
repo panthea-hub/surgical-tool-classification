@@ -13,10 +13,12 @@ predictions are any good. A model that is wrong about everything can still
 pass preflight; that's by design, so passing this tells you nothing about
 your score, only that we'll be able to compute one.
 """
+import os
 import sys
 import tempfile
 from pathlib import Path
 
+import config
 from contract import (
     discover_class_names,
     find_entry_point,
@@ -26,7 +28,7 @@ from contract import (
 )
 
 ROOT = Path(__file__).parent
-VAL_DIR = ROOT / "data" / "cholec-tinytools" / "validation"
+VAL_DIR = os.path.join(config.DATA_ROOT, "validation")
 
 
 def main():

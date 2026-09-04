@@ -1,7 +1,4 @@
-"""Central config. Some of this has drifted from configs/default.yaml since
-that file was set up for the EfficientNet experiment - this module is what
-train.py actually imports.
-"""
+"""Central configuration for the main ResNet18 training pipeline."""
 
 LEARNING_RATE = 3e-4
 BATCH_SIZE = 32
