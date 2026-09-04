@@ -250,6 +250,8 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
         checkpoint_path,
     )
     print(f"saved {checkpoint_path}")
+    with open("runs/latest_checkpoint.txt", "w") as checkpoint_file:
+        checkpoint_file.write(checkpoint_path)
 
     end_time = datetime.now().astimezone()
     duration_seconds = time.perf_counter() - start_counter

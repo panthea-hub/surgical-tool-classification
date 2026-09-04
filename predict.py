@@ -54,10 +54,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-dir", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--checkpoint", default=CHECKPOINT_PATH)
     args = ap.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    checkpoint = torch.load(CHECKPOINT_PATH, map_location=device)
+    checkpoint = torch.load(args.checkpoint, map_location=device)
     class_names = checkpoint["class_names"]
     image_size = checkpoint["image_size"]
     normalization_mean = checkpoint["normalization_mean"]

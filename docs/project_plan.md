@@ -20,7 +20,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Scale image pixels from `0–255` to `0–1` before normalization and keep training and validation preprocessing consistent.
 - Reason: `train_v2.py` replaces the ImageNet mean/std with values from `stats.json`, which `ToolDataset.__getitem__()` uses at runtime, but those statistics assume images are already scaled to `0–1`.
 
-3. [Status: PLANNED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py / train_v2.py — normalization strategy investigation
+3. [Status: FUTURE WORK / NOT PURSUED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py / train_v2.py — normalization strategy investigation
 - After fixing the normalization scale bug, compare ImageNet mean/std with the dataset-specific values from `stats.json` as a controlled experiment.
 - Reason: determine whether ImageNet normalization better matches the pretrained ResNet18 backbone or dataset-specific normalization provides a measurable benefit for the surgical-tool dataset.
 
@@ -47,7 +47,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Save or update the checkpoint whenever validation accuracy improves so its weights correspond to `best_val_accuracy` and `best_epoch`.
 - Reason: the current code records the best validation result only for reporting, while `resnet18_final.pt` contains the final epoch's weights and may represent a worse model.
 
-9. [Status: PLANNED] [Priority: Low] [Category: REPRODUCIBILITY] train_v2.py — hyperparameter configuration
+9. [Status: FUTURE WORK / NOT PURSUED] [Priority: Low] [Category: REPRODUCIBILITY] train_v2.py — hyperparameter configuration
 - Review the hard-coded `batch_size=8`, `lr=1e-3`, and `epochs=10`, which currently override values from `config.py`.
 - Decide whether these overrides are intentional or whether training hyperparameters should come from a single configuration source.
 - Reason: avoid conflicting configuration values and make training runs easier to understand and reproduce.
@@ -57,13 +57,14 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
 
-11. [Status: DON] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
+11. [Status: DONE] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
 
 - Replace the legacy SmallCNN/model_best.pt path with the current ResNet18 architecture and checkpoint.
 - Align evaluation preprocessing with training: RGB input, 224 × 224 resizing, correct 0–1 scaling, and the same normalization.
 - Preserve the required prediction CLI and CSV interface.
+- Verification: ResNet18 evaluation and prediction were completed and verified end-to-end.
 
-- Reason: predict.py and evaluate_model.py still use legacy model/preprocessing paths that do not match the current ResNet18 training pipeline.
+- Reason: the ResNet18 inference and evaluation pipeline is now aligned and verified end-to-end.
 
 12. [Status: DONE] [Priority: High] [Category: BUG FIX] predict.py — image-loading error handling
 - Remove the silent fallback that replaces failed images with `torch.zeros(3, 128, 128)` and report the failed filename and error.
@@ -90,8 +91,8 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
 - Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.
 
-16. [Status: DONE / ADOPTED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py — class-weighted loss (planned)
+16. [Status: DONE / ADOPTED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py
 - Add class-weighted `CrossEntropyLoss` to address class imbalance, especially the underrepresented scissor class.
 - Experiment 2: square-root weighting produced 81.6% overall accuracy and 40.7% scissor accuracy versus the 83.0% / 37.0% baseline; do not adopt.
 - Experiment 3 [DONE / ADOPTED]: partially fine-tuned ResNet18 `layer4` with standard unweighted cross-entropy loss, reaching 88.5% overall accuracy.
-- Reason: reduce bias toward larger classes and improve learning for the underrepresented scissor class.
+- Reason: Reason: evaluate strategies to improve minority-class performance while maintaining or improving overall accuracy.
