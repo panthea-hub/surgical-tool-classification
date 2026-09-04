@@ -123,7 +123,11 @@ conda create -n surgical-tools python=3.11
 conda activate surgical-tools
 ```
 
-Install the required Python packages according to the project environment.
+Install the active pipeline dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 
 ---
 

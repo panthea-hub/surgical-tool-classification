@@ -63,7 +63,7 @@ def main():
     image_size = checkpoint["image_size"]
     normalization_mean = checkpoint["normalization_mean"]
     normalization_std = checkpoint["normalization_std"]
-    model = build_model(num_classes=len(class_names)).to(device)
+    model = build_model(num_classes=len(class_names), pretrained=False).to(device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 
