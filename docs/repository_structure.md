@@ -83,6 +83,8 @@ surgical-tool-classification/
 ├── check_submission.py
 ├── contract.py
 ├── run_all.sh
+├── setup.sh
+├── requirements.txt
 ├── stats.json
 ├── README.md
 └── .gitignore

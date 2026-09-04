@@ -82,17 +82,18 @@ The expected dataset structure is:
 
 ```text
 data/
-├── train/
-│   ├── clipper/
-│   ├── grasper/
-│   ├── hook/
-│   └── scissor/
-│
-└── validation/
-    ├── clipper/
-    ├── grasper/
-    ├── hook/
-    └── scissor/
+└── cholec-tinytools/
+    ├── train/
+    │   ├── clipper/
+    │   ├── grasper/
+    │   ├── hook/
+    │   └── scissor/
+    │
+    └── validation/
+        ├── clipper/
+        ├── grasper/
+        ├── hook/
+        └── scissor/
 ```
 
 The original `train/` directory is used for model development.
@@ -132,6 +133,33 @@ pip install -r requirements.txt
 ---
 
 # Usage
+
+## Quick Start
+
+1. Create and activate the environment:
+
+```bash
+conda create -n surgical-tools python=3.11
+conda activate surgical-tools
+pip install -r requirements.txt
+```
+
+2. Run the complete pipeline:
+
+```bash
+./setup.sh /path/to/cholec-tinytools
+```
+
+The supplied dataset directory must contain `train/` and `validation/`. `setup.sh` validates the dataset path, sets `DATA_ROOT`, and launches `run_all.sh`.
+
+## Training Configuration
+
+The adopted training settings are not yet fully centralized in `config.py`:
+
+- `train_v2.py` supplies `batch_size=8`, `epochs=10`, and nominal `lr=1e-3`.
+- `train.py` uses separate learning rates for partial fine-tuning: `layer4=1e-4` and `fc=1e-3`.
+- For a quick test, change the number of epochs in `train_v2.py`, not `config.py`.
+- Centralizing these settings in `config.py` is listed as future work.
 
 ## Train
 
@@ -304,6 +332,7 @@ surgical-tool-classification/
 | `predict.py` | Required inference interface |
 | `check_submission.py` | Prediction/preflight validation |
 | `run_all.sh` | End-to-end pipeline |
+| `setup.sh` | Dataset setup and end-to-end pipeline launcher |
 | `config.py` | Shared configuration |
 | `contract.py` | Candidate/grading interface contract |
 
