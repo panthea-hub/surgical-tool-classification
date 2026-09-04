@@ -383,5 +383,7 @@ Potential extensions include:
 
 - comparison of ImageNet and dataset-specific normalization
 - additional minority-class strategies for the scissor class
+- add more training images for the scissor class to address class imbalance
+- perform a second annotation/review round on images missed by the model to improve label quality and hard-example coverage
 - consolidated hyperparameter configuration
 - evaluation of additional fine-tuning strategies
