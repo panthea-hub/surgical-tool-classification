@@ -6,52 +6,9 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 
 
 ## test from codex
-## Workflow test completed from VS Code to GitHub to Colab.
+## Workflow test completed from VS Code to GitHub to Colab(in case more resourcess is needed).
 
-## Changes Completed So Far
 
-### BUG FIX
-
-- `train.py` — restricted class discovery to real, non-hidden directories.
-- `train.py` — scaled image pixels from `0–255` to `0–1` before normalization.
-- `train.py` — disabled augmentation for the internal validation dataset.
-- `train.py` — passed raw logits to `CrossEntropyLoss` in training and validation.
-- `train.py` — used `model.eval()` and `torch.no_grad()` during validation.
-- `train.py` — stopped pooling the held-out `validation/` folder into model development data.
-- `evaluate_model.py` — added clear errors for a missing validation directory, missing required class folders, or class folders without `.png` images.
-
-### MODEL IMPROVEMENT
-
-- `train.py` — saved the weights from the epoch with the best validation accuracy.
-- `train.py` — added configured weight decay to the SGD optimizer.
-
-### PIPELINE ALIGNMENT
-
-- `evaluate_model.py` — replaced the legacy `SmallCNN` with the current ResNet18 model.
-- `evaluate_model.py` — loaded `checkpoints/resnet18_final.pt` and its checkpoint dictionary.
-- `evaluate_model.py` — used checkpoint class order, image size, and normalization statistics.
-- `evaluate_model.py` — aligned image loading with training by using PIL and RGB input.
-- `evaluate_model.py` — built the held-out validation path from `config.DATA_ROOT`.
-
-### REPRODUCIBILITY
-
-- `config.py` — established it as the central configuration source for the ResNet18 pipeline.
-- `train.py` — removed the undocumented `lr * 100` multiplier.
-- `train.py` — added NumPy and PyTorch seed `42`.
-- `train.py` — saved class names, image size, and normalization metadata with the checkpoint.
-
-### EXPERIMENT TRACKING
-
-- `train.py` — appended completed-run configuration and results to `runs/training_history.csv`.
-- `evaluate_model.py` — appended evaluation summaries to `runs/evaluation_history.csv`.
-
-### FEATURE ADDITION
-
-- `evaluate_model.py` — added a console confusion matrix in checkpoint class order.
-
-### DOCUMENTATION
-
-- `train.py` — corrected comments to describe the frozen pretrained backbone and trainable classification head.
 
 ## Planned Changes
 
@@ -100,7 +57,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
 
-11. [Status: IN PROGRESS — evaluation complete; prediction model updated; checkpoint and preprocessing pending] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
+11. [Status: DON] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
 
 - Replace the legacy SmallCNN/model_best.pt path with the current ResNet18 architecture and checkpoint.
 - Align evaluation preprocessing with training: RGB input, 224 × 224 resizing, correct 0–1 scaling, and the same normalization.
@@ -133,6 +90,8 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
 - Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.
 
-16. [Status: PLANNED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py — class-weighted loss (planned)
+16. [Status: DONE / ADOPTED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py — class-weighted loss (planned)
 - Add class-weighted `CrossEntropyLoss` to address class imbalance, especially the underrepresented scissor class.
+- Experiment 2: square-root weighting produced 81.6% overall accuracy and 40.7% scissor accuracy versus the 83.0% / 37.0% baseline; do not adopt.
+- Experiment 3 [DONE / ADOPTED]: partially fine-tuned ResNet18 `layer4` with standard unweighted cross-entropy loss, reaching 88.5% overall accuracy.
 - Reason: reduce bias toward larger classes and improve learning for the underrepresented scissor class.

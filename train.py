@@ -166,11 +166,17 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
 
     model = build_model(len(classes)).to(device)
-    # Only the head has requires_grad=True at this point, so this optimizes
-    # the classifier on top of frozen pretrained features - much faster to
-    # converge than updating the whole backbone.
+    for param in model.layer4.parameters():
+        param.requires_grad = True
+    # Fine-tune the final backbone block conservatively while training the
+    # classifier head at the stabilized baseline learning rate.
     optimizer = torch.optim.SGD(
-        model.fc.parameters(), lr=lr, momentum=0.9, weight_decay=config.WEIGHT_DECAY
+        [
+            {"params": model.layer4.parameters(), "lr": 1e-4},
+            {"params": model.fc.parameters(), "lr": 1e-3},
+        ],
+        momentum=0.9,
+        weight_decay=config.WEIGHT_DECAY,
     )
     criterion = nn.CrossEntropyLoss()
 
