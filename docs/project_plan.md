@@ -6,52 +6,9 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 
 
 ## test from codex
-## Workflow test completed from VS Code to GitHub to Colab.
+## Workflow test completed from VS Code to GitHub to Colab(in case more resourcess is needed).
 
-## Changes Completed So Far
 
-### BUG FIX
-
-- `train.py` — restricted class discovery to real, non-hidden directories.
-- `train.py` — scaled image pixels from `0–255` to `0–1` before normalization.
-- `train.py` — disabled augmentation for the internal validation dataset.
-- `train.py` — passed raw logits to `CrossEntropyLoss` in training and validation.
-- `train.py` — used `model.eval()` and `torch.no_grad()` during validation.
-- `train.py` — stopped pooling the held-out `validation/` folder into model development data.
-- `evaluate_model.py` — added clear errors for a missing validation directory, missing required class folders, or class folders without `.png` images.
-
-### MODEL IMPROVEMENT
-
-- `train.py` — saved the weights from the epoch with the best validation accuracy.
-- `train.py` — added configured weight decay to the SGD optimizer.
-
-### PIPELINE ALIGNMENT
-
-- `evaluate_model.py` — replaced the legacy `SmallCNN` with the current ResNet18 model.
-- `evaluate_model.py` — loaded `checkpoints/resnet18_final.pt` and its checkpoint dictionary.
-- `evaluate_model.py` — used checkpoint class order, image size, and normalization statistics.
-- `evaluate_model.py` — aligned image loading with training by using PIL and RGB input.
-- `evaluate_model.py` — built the held-out validation path from `config.DATA_ROOT`.
-
-### REPRODUCIBILITY
-
-- `config.py` — established it as the central configuration source for the ResNet18 pipeline.
-- `train.py` — removed the undocumented `lr * 100` multiplier.
-- `train.py` — added NumPy and PyTorch seed `42`.
-- `train.py` — saved class names, image size, and normalization metadata with the checkpoint.
-
-### EXPERIMENT TRACKING
-
-- `train.py` — appended completed-run configuration and results to `runs/training_history.csv`.
-- `evaluate_model.py` — appended evaluation summaries to `runs/evaluation_history.csv`.
-
-### FEATURE ADDITION
-
-- `evaluate_model.py` — added a console confusion matrix in checkpoint class order.
-
-### DOCUMENTATION
-
-- `train.py` — corrected comments to describe the frozen pretrained backbone and trainable classification head.
 
 ## Planned Changes
 
