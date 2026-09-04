@@ -57,7 +57,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Do not copy training-only augmentation such as random flip or color jitter into prediction.
 - Reason: `predict.py` currently uses grayscale `128 × 128` images with different scaling and no normalization, so inference inputs do not match the distribution used to train the ResNet18 model.
 
-11. [Status: IN PROGRESS — evaluation complete; prediction model updated; checkpoint and preprocessing pending] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
+11. [Status: DON] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py / evaluate_model.py — create current ResNet18 inference/evaluation pipeline
 
 - Replace the legacy SmallCNN/model_best.pt path with the current ResNet18 architecture and checkpoint.
 - Align evaluation preprocessing with training: RGB input, 224 × 224 resizing, correct 0–1 scaling, and the same normalization.
@@ -90,7 +90,8 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
 - Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.
 
-16. [Status: DONE] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py — class-weighted loss (planned)
+16. [Status: DONE / ADOPTED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py — class-weighted loss (planned)
 - Add class-weighted `CrossEntropyLoss` to address class imbalance, especially the underrepresented scissor class.
 - Experiment 2: square-root weighting produced 81.6% overall accuracy and 40.7% scissor accuracy versus the 83.0% / 37.0% baseline; do not adopt.
+- Experiment 3 [DONE / ADOPTED]: partially fine-tuned ResNet18 `layer4` with standard unweighted cross-entropy loss, reaching 88.5% overall accuracy.
 - Reason: reduce bias toward larger classes and improve learning for the underrepresented scissor class.

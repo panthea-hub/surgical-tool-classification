@@ -23,8 +23,18 @@ Held-out accuracy: Not reliably recorded
 - Scissor accuracy: **40.7%** (baseline **37.0%**)
 - Decision: **Do not adopt**
 
+## Experiment 3 — Partial ResNet18 Fine-Tuning (`layer4` + `fc`)
+
+- Overall accuracy: **88.5%** (baseline **83.0%**)
+- Clipper accuracy: **89.8%**
+- Grasper accuracy: **93.1%**
+- Hook accuracy: **96.0%**
+- Scissor accuracy: **40.7%** (baseline **37.0%**)
+- Decision: **ADOPT**
+- Checkpoint: `resnet18_20260903T220901549787-0700.pt`
+
 ## Progression
 
-**Original** → **Stabilized baseline: 83.0%** → **Weighted-loss experiments: not adopted**
+**Original** → **Stabilized baseline: 83.0%** → **Partial fine-tuning: 88.5% (adopted)**
 
 **Next goal:** Improve minority-class performance without sacrificing overall accuracy.
