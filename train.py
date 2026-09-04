@@ -172,7 +172,17 @@ def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
     optimizer = torch.optim.SGD(
         model.fc.parameters(), lr=lr, momentum=0.9, weight_decay=config.WEIGHT_DECAY
     )
-    criterion = nn.CrossEntropyLoss()
+    counts = np.bincount(train_labels, minlength=len(classes))
+    if np.any(counts == 0):
+        raise ValueError(f"Training split contains an empty class: {counts}")
+    weights = len(train_labels) / (len(classes) * counts)
+    weights = np.sqrt(weights)
+    class_weights = torch.tensor(
+        weights,
+        dtype=torch.float32,
+        device=device,
+    )
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
 
     best_val_accuracy = float("-inf")
     best_epoch = None

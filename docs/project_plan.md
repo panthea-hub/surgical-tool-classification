@@ -133,6 +133,7 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Remove the disconnected EfficientNet experiment and unrelated config-printing step.
 - Reason: the current script trains EfficientNet, evaluates legacy SmallCNN, and does not run submission checking.
 
-16. [Status: PLANNED] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py — class-weighted loss (planned)
+16. [Status: DONE] [Priority: Medium] [Category: MODEL IMPROVEMENT] train.py — class-weighted loss (planned)
 - Add class-weighted `CrossEntropyLoss` to address class imbalance, especially the underrepresented scissor class.
+- Experiment 2: square-root weighting produced 81.6% overall accuracy and 40.7% scissor accuracy versus the 83.0% / 37.0% baseline; do not adopt.
 - Reason: reduce bias toward larger classes and improve learning for the underrepresented scissor class.
