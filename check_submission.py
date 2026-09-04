@@ -14,10 +14,8 @@ pass preflight; that's by design, so passing this tells you nothing about
 your score, only that we'll be able to compute one.
 """
 import os
-import subprocess
 import sys
 import tempfile
-import time
 from pathlib import Path
 
 import config
@@ -25,13 +23,12 @@ from contract import (
     discover_class_names,
     find_entry_point,
     list_expected_filenames,
-    TIMEOUT_SECONDS,
+    run_predict,
     validate_schema,
 )
 
 ROOT = Path(__file__).parent
 VAL_DIR = os.path.join(config.DATA_ROOT, "validation")
-LATEST_CHECKPOINT_PATH = ROOT / "runs" / "latest_checkpoint.txt"
 
 
 def main():
@@ -49,30 +46,10 @@ def main():
     expected_files = list_expected_filenames(VAL_DIR)
     print(f"{len(expected_files)} images across {len(class_names)} classes: {class_names}")
 
-    checkpoint_path = LATEST_CHECKPOINT_PATH.read_text().strip()
-
     with tempfile.TemporaryDirectory() as tmp:
         out_csv = Path(tmp) / "preds.csv"
         try:
-            start = time.time()
-            proc = subprocess.run(
-                [
-                    sys.executable,
-                    entry_point.name,
-                    "--checkpoint",
-                    checkpoint_path,
-                    "--data-dir",
-                    str(VAL_DIR),
-                    "--out",
-                    str(out_csv),
-                ],
-                cwd=str(entry_point.parent),
-                capture_output=True,
-                text=True,
-                timeout=TIMEOUT_SECONDS,
-            )
-            returncode, stdout, stderr = proc.returncode, proc.stdout, proc.stderr
-            elapsed = time.time() - start
+            returncode, stdout, stderr, elapsed = run_predict(entry_point, VAL_DIR, out_csv)
         except Exception as e:
             print(f"PREFLIGHT FAILED: predict.py raised/timed out: {e}")
             sys.exit(1)
