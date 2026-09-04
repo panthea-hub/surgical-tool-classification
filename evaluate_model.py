@@ -4,6 +4,7 @@ have, so that's what this reports against).
 
 Usage: python evaluate_model.py
 """
+import argparse
 import csv
 import json
 import os
@@ -59,9 +60,13 @@ class EvalDataset(Dataset):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--checkpoint", default=CHECKPOINT_PATH)
+    args = parser.parse_args()
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    checkpoint = torch.load(CHECKPOINT_PATH, map_location=device)
+    checkpoint = torch.load(args.checkpoint, map_location=device)
     class_names = checkpoint["class_names"]
     image_size = checkpoint["image_size"]
     normalization_mean = checkpoint["normalization_mean"]
@@ -128,7 +133,7 @@ def main():
             writer.writeheader()
         writer.writerow({
             "timestamp": datetime.now().astimezone().isoformat(),
-            "checkpoint_path": CHECKPOINT_PATH,
+            "checkpoint_path": args.checkpoint,
             "overall_accuracy": overall_accuracy,
             "per_class_accuracy": json.dumps(per_class_accuracy),
             "samples_per_class": json.dumps(per_class_total),
