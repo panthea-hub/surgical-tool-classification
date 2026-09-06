@@ -20,11 +20,17 @@ base.IMAGENET_MEAN = _stats["mean"]
 base.IMAGENET_STD = _stats["std"]
 
 
-def main():
-    # A bit more patience and a smaller batch size than the v1 defaults -
-    # this is what worked best when we eyeballed the validation curves.
-    base.main(batch_size=8, lr=1e-3, epochs=10)
+# def main():
+#     # A bit more patience and a smaller batch size than the v1 defaults -
+#     # this is what worked best when we eyeballed the validation curves.
+#     base.main(batch_size=8, lr=1e-3, epochs=10)
 
+def main():
+    base.main(
+        batch_size=base.config.BATCH_SIZE,
+        lr=base.config.LEARNING_RATE,
+        epochs=base.config.NUM_EPOCHS,
+    )
 
 if __name__ == "__main__":
     main()
