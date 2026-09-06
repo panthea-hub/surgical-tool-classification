@@ -97,3 +97,11 @@ Result: training settings now have a clearer single configuration source, improv
 - Experiment 2: square-root weighting produced 81.6% overall accuracy and 40.7% scissor accuracy versus the 83.0% / 37.0% baseline; do not adopt.
 - Experiment 3 [DONE / ADOPTED]: partially fine-tuned ResNet18 `layer4` with standard unweighted cross-entropy loss, reaching 88.5% overall accuracy.
 - Reason: Reason: evaluate strategies to improve minority-class performance while maintaining or improving overall accuracy.
+
+17. [Status: DONE] [Priority: Medium] [Category: MODEL EVALUATION] evaluate_model.py — visual error analysis
+- Added `runs/error_analysis/` to automatically organize misclassified validation images by actual and predicted class.
+- Each error is shown from both perspectives: images missed from the true class and images incorrectly predicted as another class.
+- Original validation images are copied only and never modified.
+- Verification: evaluation remained 88.45% on 277 images, with 32 misclassified images.
+- Reason: enables visual inspection of model errors and identification of systematic failure patterns.
+- Future work: review these errors for ambiguous or potentially mislabeled images before considering human-approved relabeling and retraining.
