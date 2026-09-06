@@ -8,6 +8,7 @@ import argparse
 import csv
 import json
 import os
+import shutil
 from datetime import datetime
 
 import numpy as np
@@ -56,7 +57,7 @@ class EvalDataset(Dataset):
         arr = arr.astype(np.float32) / 255.0
         arr = (arr - self.normalization_mean) / self.normalization_std
         arr = np.transpose(arr, (2, 0, 1))
-        return torch.from_numpy(arr), label
+        return torch.from_numpy(arr), label, path
 
 
 def main():
@@ -86,9 +87,10 @@ def main():
     total_samples = 0
     true_labels = []
     predicted_labels = []
+    misclassified = []
 
     with torch.no_grad():
-        for imgs, labels in loader:
+        for imgs, labels, paths in loader:
             imgs, labels = imgs.to(device), labels.to(device)
             logits = model(imgs)
             preds = logits.argmax(dim=1)
@@ -96,11 +98,13 @@ def main():
             total_samples += labels.size(0)
             true_labels.extend(labels.tolist())
             predicted_labels.extend(preds.tolist())
-            for p, t in zip(preds.tolist(), labels.tolist()):
+            for p, t, path in zip(preds.tolist(), labels.tolist(), paths):
                 cls_name = class_names[t]
                 per_class_total[cls_name] += 1
                 if p == t:
                     per_class_correct[cls_name] += 1
+                else:
+                    misclassified.append((path, cls_name, class_names[p]))
 
     overall_accuracy = total_correct / total_samples
     print(f"overall accuracy: {overall_accuracy:.4f}")
@@ -138,6 +142,25 @@ def main():
             "per_class_accuracy": json.dumps(per_class_accuracy),
             "samples_per_class": json.dumps(per_class_total),
         })
+
+    error_dir = os.path.join("runs", "error_analysis")
+    # Remove only this generated directory; never follow a directory symlink.
+    if os.path.islink(error_dir):
+        os.unlink(error_dir)
+    elif os.path.exists(error_dir):
+        shutil.rmtree(error_dir)
+    os.makedirs(error_dir)
+
+    for path, actual, predicted in misclassified:
+        destinations = [
+            os.path.join(error_dir, f"missed_{actual}", f"predicted_{predicted}"),
+            os.path.join(error_dir, f"predicted_as_{predicted}", f"actual_{actual}"),
+        ]
+        for destination in destinations:
+            os.makedirs(destination, exist_ok=True)
+            shutil.copy2(path, os.path.join(destination, os.path.basename(path)))
+
+    print(f"error analysis: {len(misclassified)} misclassified images saved to {error_dir}/")
 
 
 if __name__ == "__main__":
