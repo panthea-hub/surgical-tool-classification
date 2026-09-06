@@ -47,10 +47,11 @@ Improve the performance, robustness, and maintainability of a surgical tool imag
 - Save or update the checkpoint whenever validation accuracy improves so its weights correspond to `best_val_accuracy` and `best_epoch`.
 - Reason: the current code records the best validation result only for reporting, while `resnet18_final.pt` contains the final epoch's weights and may represent a worse model.
 
-9. [Status: FUTURE WORK / NOT PURSUED] [Priority: Low] [Category: REPRODUCIBILITY] train_v2.py — hyperparameter configuration
-- Review the hard-coded `batch_size=8`, `lr=1e-3`, and `epochs=10`, which currently override values from `config.py`.
-- Decide whether these overrides are intentional or whether training hyperparameters should come from a single configuration source.
-- Reason: avoid conflicting configuration values and make training runs easier to understand and reproduce.
+9. [Status: COMPLETED] [Priority: Low] [Category: REPRODUCIBILITY] train_v2.py — hyperparameter configuration
+Removed the hard-coded batch_size=8, lr=1e-3, and epochs=10 overrides from train_v2.py.
+train_v2.py now reads these training hyperparameters from the centralized config.py.
+Updated config.py to preserve the previously used training values (BATCH_SIZE=8, LEARNING_RATE=1e-3, NUM_EPOCHS=10), so this cleanup does not intentionally change training behavior.
+Result: training settings now have a clearer single configuration source, improving readability and reproducibility.
 
 10. [Status: DONE] [Priority: High] [Category: PIPELINE ALIGNMENT] predict.py — align image preprocessing with training
 - Update inference preprocessing to match the current ResNet18 training pipeline: RGB input, `224 × 224` resizing, correct `0–1` scaling, and the same mean/std normalization used during training.
