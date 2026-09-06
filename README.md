@@ -203,12 +203,37 @@ Evaluation reports:
 - overall accuracy
 - per-class accuracy
 - confusion matrix
+- visual error analysis of misclassified validation images
 
 Evaluation history is stored under:
 
 ```text
 runs/
 ```
+
+Misclassified validation images are automatically copied to:
+
+```text
+runs/error_analysis/
+```
+
+Each error appears in two complementary directory views:
+
+```text
+missed_<actual_class>/predicted_<predicted_class>/
+predicted_as_<predicted_class>/actual_<actual_class>/
+```
+
+The first view helps identify images the model missed from a particular true class. The second view helps identify false-positive predictions assigned to a particular class.
+
+For example, if an actual scissor is incorrectly predicted as a clipper, the image appears in both:
+
+```text
+runs/error_analysis/missed_scissor/predicted_clipper/
+runs/error_analysis/predicted_as_clipper/actual_scissor/
+```
+
+Only misclassified images are copied. The original validation images are never moved or modified. The error-analysis directory is regenerated for each evaluation so it represents the current evaluation only.
 
 ---
 
@@ -328,7 +353,7 @@ surgical-tool-classification/
 |---|---|
 | `train.py` | ResNet18 training pipeline |
 | `train_v2.py` | Training entry point and experiment configuration |
-| `evaluate_model.py` | Held-out model evaluation |
+| `evaluate_model.py` | Held-out model evaluation, confusion matrix, and visual error analysis |
 | `predict.py` | Required inference interface |
 | `check_submission.py` | Prediction/preflight validation |
 | `run_all.sh` | End-to-end pipeline |
@@ -387,3 +412,11 @@ Potential extensions include:
 - perform a second annotation/review round on images missed by the model to improve label quality and hard-example coverage
 - consolidated hyperparameter configuration
 - evaluation of additional fine-tuning strategies
+
+The following annotation/relabeling workflow is planned future work and is not currently implemented:
+
+- review the generated `runs/error_analysis/` folders to identify systematic model failure patterns, especially errors involving the scissor class
+- use misclassified images as candidates for human annotation review; a model prediction does not prove that an existing label is incorrect
+- distinguish genuine model errors from ambiguous images and potentially incorrect labels
+- preserve the original labels during review and record proposed label corrections separately; do not automatically relabel an image because the model disagrees
+- after human-reviewed label corrections or hard-example additions are approved, retrain and reevaluate the model
