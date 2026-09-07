@@ -17,3 +17,13 @@ python predict.py --checkpoint "$CHECKPOINT_PATH" --data-dir "$DATA_ROOT/validat
 
 echo "=== checking submission ==="
 python check_submission.py
+
+echo "=== generating embedding analysis ==="
+python analyze_embeddings.py --checkpoint "$CHECKPOINT_PATH"
+
+echo "=== pipeline complete ==="
+echo "Checkpoint: $CHECKPOINT_PATH"
+echo "Error analysis: runs/error_analysis/"
+echo "Embedding plot: runs/embedding_analysis/embedding_umap.png"
+echo "Embedding CSV: runs/embedding_analysis/embedding_umap.csv"
+echo "Interactive embedding plot: runs/embedding_analysis/embedding_umap.html"
