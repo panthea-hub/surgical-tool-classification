@@ -58,6 +58,24 @@ For experiment details and model comparisons, see [`docs/model_baseline.md`](doc
 - Static plot: `runs/embedding_analysis/embedding_umap.png`
 - Point data: `runs/embedding_analysis/embedding_umap.csv`
 
+### Grad-CAM Explainability
+
+Grad-CAM shows which image regions most influenced the ResNet18 prediction. Bright yellow/orange regions indicate stronger influence; dark regions indicate lower influence. Misclassified images can be inspected individually or generated in a batch.
+
+```bash
+python analyze_gradcam.py --checkpoint "$(cat runs/latest_checkpoint.txt)" --image /path/to/image.png
+```
+
+```bash
+python analyze_gradcam.py --checkpoint "$(cat runs/latest_checkpoint.txt)" --error-analysis-dir runs/error_analysis
+```
+
+Outputs are saved to `runs/gradcam_analysis/`, and `run_all.sh` runs batch Grad-CAM automatically.
+
+![Grad-CAM overlay highlighting influential image regions](docs/images/gradcam_overlay.png)
+
+*Example Grad-CAM overlay showing the regions that most influenced a misclassified scissor prediction.*
+
 ---
 
 ## Pipeline

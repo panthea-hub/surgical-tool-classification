@@ -105,3 +105,9 @@ Result: training settings now have a clearer single configuration source, improv
 - Verification: evaluation remained 88.45% on 277 images, with 32 misclassified images.
 - Reason: enables visual inspection of model errors and identification of systematic failure patterns.
 - Future work: review these errors for ambiguous or potentially mislabeled images before considering human-approved relabeling and retraining.
+
+18. [Status: DONE] [Priority: Medium] [Category: MODEL EXPLAINABILITY] analyze_gradcam.py — Grad-CAM analysis
+- Added Grad-CAM visualization to show which image regions most influenced ResNet18 predictions.
+- Supports single-image and batch analysis of misclassified images.
+- Verification: 32 misclassified images analyzed, 32/32 predictions reproduced, 0 mismatches.
+- Reason: helps investigate what spatial regions may be driving correct and incorrect predictions.
