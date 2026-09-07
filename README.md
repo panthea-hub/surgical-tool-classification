@@ -48,6 +48,18 @@ For experiment details and model comparisons, see [`docs/model_baseline.md`](doc
 
 ---
 
+## Embedding Visualization
+
+`analyze_embeddings.py` extracts 512-dimensional ResNet18 features and projects them to two dimensions with UMAP. The visualization helps inspect class separation and overlap—especially scissor versus clipper—and marks misclassified images with X symbols.
+
+![UMAP visualization of ResNet18 validation embeddings](docs/images/Umap.png)
+
+- Interactive plot: `runs/embedding_analysis/embedding_umap.html`
+- Static plot: `runs/embedding_analysis/embedding_umap.png`
+- Point data: `runs/embedding_analysis/embedding_umap.csv`
+
+---
+
 ## Pipeline
 
 ```text
