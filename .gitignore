@@ -19,3 +19,4 @@ data/
 # Temporary
 *.tmp
 *.log
+predictions.csv
