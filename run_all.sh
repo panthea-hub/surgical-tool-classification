@@ -27,3 +27,9 @@ echo "Error analysis: runs/error_analysis/"
 echo "Embedding plot: runs/embedding_analysis/embedding_umap.png"
 echo "Embedding CSV: runs/embedding_analysis/embedding_umap.csv"
 echo "Interactive embedding plot: runs/embedding_analysis/embedding_umap.html"
+
+echo "=== generating Grad-CAM analysis ==="
+python analyze_gradcam.py \
+  --checkpoint "$CHECKPOINT_PATH" \
+  --error-analysis-dir runs/error_analysis 
+echo "Grad-CAM analysis: runs/gradcam_analysis/"
