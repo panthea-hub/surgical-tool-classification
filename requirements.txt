@@ -3,3 +3,6 @@ Pillow
 scikit-learn
 torch
 torchvision
+matplotlib
+umap-learn
+plotly
