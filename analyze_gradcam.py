@@ -113,6 +113,13 @@ def analyze_errors(model, checkpoint, device, error_dir, output_dir):
             raise ValueError(f"Duplicate image with ambiguous prediction folders: {path}")
         images[key] = (path, expected)
 
+    if not images:
+        raise ValueError(f"No valid misclassified PNG images found in: {error_dir}")
+
+    for batch_dir in output_dir.glob("actual_*"):
+        if batch_dir.is_dir():
+            shutil.rmtree(batch_dir)
+
     matched = 0
     for (actual, filename), (path, expected) in images.items():
         destination = output_dir / f"actual_{actual}" / f"predicted_{expected}"
@@ -148,9 +155,6 @@ def main():
     if args.image:
         analyze_image(model, checkpoint, device, Path(args.image), output_dir)
     else:
-        for batch_dir in output_dir.glob("actual_*"):
-            if batch_dir.is_dir():
-                shutil.rmtree(batch_dir)
         analyze_errors(model, checkpoint, device, Path(args.error_analysis_dir), output_dir)
 
 
