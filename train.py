@@ -117,6 +117,11 @@ def build_model(num_classes, pretrained=True):
     model.fc = nn.Linear(model.fc.in_features, num_classes)
     return model
 
+# model.fc = nn.Sequential(
+#     nn.Linear(model.fc.in_features, 128),  # 512 → 128
+#     nn.ReLU(),
+#     nn.Linear(128, num_classes)            # 128 → 4
+# )
 
 def append_training_history(row):
     os.makedirs(os.path.dirname(TRAINING_HISTORY_PATH), exist_ok=True)
@@ -138,7 +143,7 @@ def append_training_history(row):
         writer.writerow(row)
 
 
-def main(batch_size=16, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
+def main(batch_size=config.BATCH_SIZE, lr=config.LEARNING_RATE, epochs=config.NUM_EPOCHS):
     np.random.seed(42)
     torch.manual_seed(42)
     start_time = datetime.now().astimezone()
